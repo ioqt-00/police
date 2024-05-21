@@ -43,6 +43,7 @@ if __name__ == '__main__':
         db.create_all()
 
     env = os.getenv("FLASK_ENV")
+    port = os.getenv("FLASK_PORT")
     if env == "development":
         app.run(host="0.0.0.0", debug=True)
     else:
@@ -50,4 +51,4 @@ if __name__ == '__main__':
         import logging
         logger = logging.getLogger('waitress')
         logger.setLevel(logging.INFO)
-        serve(app, host="0.0.0.0", port=5000)
+        serve(app, host="0.0.0.0", port=port)

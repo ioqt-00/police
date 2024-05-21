@@ -1,15 +1,18 @@
 from typing import Any
 
 from flask import Blueprint, request, jsonify, Response
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from config import db
 from model import Resource
+from routes.helpers import admin_required
 
 
 resource_bp = Blueprint('resource_bp', __name__)
 
 
 @resource_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_resource() -> tuple[Response, int]:
     if 'file' not in request.files:
         return jsonify({'message': 'No file part in the request'}), 400
@@ -18,12 +21,12 @@ def create_resource() -> tuple[Response, int]:
     if file.filename == '':
         return jsonify({'message': 'No selected file'}), 400
 
-    
+    user_id = get_jwt_identity()
 
     data = request.json
     new_resource = Resource(
         resource_type=data['resource_type'],                # type: ignore[index]
-        user_id=data['user_id'],                            # type: ignore[index]
+        user_id=user_id,
         source_date=data.get('source_date'),                # type: ignore[union-attr]
         source_time=data.get('source_time'),                # type: ignore[union-attr]
         source_place=data.get('source_place'),              # type: ignore[union-attr]
@@ -43,6 +46,7 @@ def get_resource(id: int) -> tuple[Response, int]:
 
 
 @resource_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_resource(id: int) -> tuple[Response, int]:
     data = request.json
     resource = Resource.query.get_or_404(id)
@@ -63,8 +67,13 @@ def update_resource(id: int) -> tuple[Response, int]:
 
 
 @resource_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_resource(id: int) -> tuple[Response, int]:
     resource = Resource.query.get_or_404(id)
+
+    if resource.user_id != get_jwt_identity():
+        return jsonify({'message': 'You are not allow to delete this resource'}), 401
+
     db.session.delete(resource)
     db.session.commit()
-    return '', 204
+    return jsonify({'message': 'Resource deleted'}), 204

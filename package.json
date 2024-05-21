@@ -1,5 +1,5 @@
 {
-    "name": "Template",
+    "name": "Police",
     "version": "0.1.0",
     "private": true,
     "homepage": "https://github.com/vitrine",
@@ -14,11 +14,10 @@
       "react-scripts": "3.4.1"
     },
     "scripts": {
-      "start:api": "cd src/api && docker-compose build && docker-compose up --force-recreate",
       "start:client": "react-scripts start",
       "predeploy": "npm run build",
       "deploy": "gh-pages -d build",
-      "start": "concurrently 'yarn start:api' 'yarn start:client'",
+      "start": "yarn start:client",
       "build": "react-scripts build",
       "test": "react-scripts test",
       "eject": "react-scripts eject"
@@ -38,5 +37,5 @@
         "last 1 safari version"
       ]
     },
-    "proxy": "http://localhost:5000"
+    "proxy": "http://police_api_1:5000"
 }

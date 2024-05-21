@@ -1,4 +1,5 @@
 from flask import Response, jsonify, Blueprint, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from config import db
 from model import User
@@ -49,9 +50,26 @@ def create_user() -> tuple[Response, int]:
 
 
 @user_bp.route('/<int:user_id>', methods=['PUT'])
+@admin_required()
 def update_user(user_id: int) -> tuple[Response, int]:
     user = User.query.get_or_404(user_id)
     data = request.json
+    
+    user.username = data.get('username', user.username)
+    user.email = data.get('email', user.email)
+    if 'password' in data:
+        user.set_password(data['password'])
+    db.session.commit()
+    return jsonify({'message': 'User updated successfully'}), 200
+
+
+@user_bp.route('/', methods=['PUT'])
+@jwt_required()
+def update_user() -> tuple[Response, int]:
+    user_id = get_jwt_identity()
+    user = User.query.get_or_404(user_id)
+    data = request.json
+    
     user.username = data.get('username', user.username)
     user.email = data.get('email', user.email)
     if 'password' in data:
@@ -61,6 +79,7 @@ def update_user(user_id: int) -> tuple[Response, int]:
 
 
 @user_bp.route('/<int:user_id>', methods=['DELETE'])
+@admin_required()
 def delete_user(user_id: int) -> tuple[Response, int]:
     user = User.query.get_or_404(user_id)
     db.session.delete(user)

@@ -2,11 +2,14 @@ from flask import Blueprint, request, jsonify, Response
 
 from config import db
 from model import ResourceEvent
+from routes.helpers import admin_required
+
 
 resource_event_bp = Blueprint('resource_event_bp', __name__)
 
 
 @resource_event_bp.route('/', methods=['POST'])
+@admin_required()
 def create_resource_event() -> tuple[Response, int]:
     data = request.json
     new_event = ResourceEvent(
@@ -20,12 +23,14 @@ def create_resource_event() -> tuple[Response, int]:
 
 
 @resource_event_bp.route('/<int:id>', methods=['GET'])
+@admin_required()
 def get_resource_event(id: int) -> tuple[Response, int]:
     event = ResourceEvent.query.get_or_404(id)
     return jsonify(event.to_dict())
 
 
 @resource_event_bp.route('/<int:id>', methods=['PUT'])
+@admin_required()
 def update_resource_event(id: int) -> tuple[Response, int]:
     data = request.json
     event = ResourceEvent.query.get_or_404(id)
@@ -38,6 +43,7 @@ def update_resource_event(id: int) -> tuple[Response, int]:
 
 
 @resource_event_bp.route('/<int:id>', methods=['DELETE'])
+@admin_required()
 def delete_resource_event(id: int) -> tuple[Response, int]:
     event = ResourceEvent.query.get_or_404(id)
     db.session.delete(event)

@@ -2,11 +2,13 @@ from flask import Blueprint, request, jsonify, Response
 
 from config import db
 from model import ResourceTag
+from routes.helpers import admin_required
 
 resource_tag_bp = Blueprint('resource_tag_bp', __name__)
 
 
 @resource_tag_bp.route('/', methods=['POST'])
+@admin_required()
 def create_resource_tag() -> tuple[Response, int]:
     data = request.json
     new_tag = ResourceTag(name=data['name'])
@@ -22,6 +24,7 @@ def get_resource_tag(id: int) -> tuple[Response, int]:
 
 
 @resource_tag_bp.route('/<int:id>', methods=['PUT'])
+@admin_required()
 def update_resource_tag(id: int) -> tuple[Response, int]:
     data = request.json
     tag = ResourceTag.query.get_or_404(id)
@@ -32,6 +35,7 @@ def update_resource_tag(id: int) -> tuple[Response, int]:
 
 
 @resource_tag_bp.route('/<int:id>', methods=['DELETE'])
+@admin_required()
 def delete_resource_tag(id: int) -> tuple[Response, int]:
     tag = ResourceTag.query.get_or_404(id)
     db.session.delete(tag)
