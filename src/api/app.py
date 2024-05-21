@@ -5,11 +5,11 @@ from flask_jwt_extended import create_access_token, unset_jwt_cookies
 
 from model import User
 from config import db, app
-from routes.user_routes import user_bp
-from routes.resource_routes import resource_bp
-from routes.resource_event_routes import resource_event_bp
-from routes.event_tag_routes import event_tag_bp
-from routes.resource_tag_routes import resource_tag_bp
+from routes.user import user_bp
+from routes.resource import resource_bp
+from routes.resource_event import resource_event_bp
+from routes.event_tag import event_tag_bp
+from routes.resource_tag import resource_tag_bp
 
 
 @app.route('/login', methods=['POST'])
