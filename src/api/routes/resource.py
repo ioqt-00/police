@@ -3,7 +3,6 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from config import db
 from model import Resource
-from routes.helpers import admin_required
 
 
 resource_bp = Blueprint('resource_bp', __name__)
@@ -21,16 +20,16 @@ def create_resource() -> tuple[Response, int]:
 
     user_id = get_jwt_identity()
 
-    data = request.json
+    data = request.form
     new_resource = Resource(
-        title=data.get(['title'], '(notitle)'),
-        resource_type=data['resource_type'],                # type: ignore[index]
+        title=data.get('title', '(notitle)'),
+        resource_type=data['resource_type'],
         user_id=user_id,
-        source_date=data.get('source_date'),                # type: ignore[union-attr]
-        source_time=data.get('source_time'),                # type: ignore[union-attr]
-        source_place=data.get('source_place'),              # type: ignore[union-attr]
-        source_place_type=data.get('source_place_type'),    # type: ignore[union-attr]
-        description=data.get('description'),                 # type: ignore[union-attr]
+        source_date=data.get('source_date'),
+        source_time=data.get('source_time'),
+        source_place=data.get('source_place'),
+        source_place_type=data.get('source_place_type'),
+        description=data.get('description'),
         data=file.read()
     )
     db.session.add(new_resource)
@@ -49,8 +48,8 @@ def get_resource(id: int) -> tuple[Response, int]:
 def update_resource(id: int) -> tuple[Response, int]:
     data = request.json
     resource = Resource.query.get_or_404(id)
-    resource.title = data.get('title', resource.title)
-    if 'resource_type' in data:
+    resource.title = data.get('title', resource.title)          # type: ignore[union-attr]
+    if 'resource_type' in data:                                 # type: ignore[operator]
         resource.resource_type = data['resource_type']          # type: ignore[index]
     if 'source_date' in data:                                   # type: ignore[operator]
         resource.source_date = data['source_date']              # type: ignore[index]
@@ -63,7 +62,7 @@ def update_resource(id: int) -> tuple[Response, int]:
     if 'description' in data:                                   # type: ignore[operator]
         resource.description = data['description']              # type: ignore[index]
     db.session.commit()
-    return jsonify(resource.to_dict())
+    return jsonify(resource.to_dict()), 200
 
 
 @resource_bp.route('/<int:id>', methods=['DELETE'])

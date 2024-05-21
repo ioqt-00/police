@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Blueprint, request, jsonify, Response
 
 from config import db
@@ -13,8 +15,8 @@ resource_event_bp = Blueprint('resource_event_bp', __name__)
 def create_resource_event() -> tuple[Response, int]:
     data = request.json
     new_event = ResourceEvent(
-        title=data.get('title', '(notitle)'),
-        event_date=data['event_date'],
+        title=data.get('title', '(notitle)'),                   # type: ignore[union-attr]
+        event_date=datetime.fromisoformat(data['event_date']),
         event_place=data['event_place']
     )
     db.session.add(new_event)
@@ -36,7 +38,7 @@ def get_resource_events() -> tuple[Response, int]:
 @admin_required()
 def get_resource_event(id: int) -> tuple[Response, int]:
     event = ResourceEvent.query.get_or_404(id)
-    return jsonify(event.to_dict())
+    return jsonify(event.to_dict()), 200
 
 
 @resource_event_bp.route('/<int:id>', methods=['PUT'])
@@ -45,12 +47,12 @@ def update_resource_event(id: int) -> tuple[Response, int]:
     data = request.json
     event = ResourceEvent.query.get_or_404(id)
     event.title = data.get('title', event.title)
-    if 'event_date' in data:
-        event.event_date = data['event_date']
-    if 'event_place' in data:
-        event.event_place = data['event_place']
+    if 'event_date' in data:                                    # type: ignore[operator]
+        event.event_date = data['event_date']                   # type: ignore[index]
+    if 'event_place' in data:                                   # type: ignore[operator]
+        event.event_place = data['event_place']                 # type: ignore[index]
     db.session.commit()
-    return jsonify(event.to_dict())
+    return jsonify(event.to_dict()), 200
 
 
 @resource_event_bp.route('/<int:id>', methods=['DELETE'])
@@ -59,4 +61,4 @@ def delete_resource_event(id: int) -> tuple[Response, int]:
     event = ResourceEvent.query.get_or_404(id)
     db.session.delete(event)
     db.session.commit()
-    return '', 204
+    return jsonify({'message': 'Resource event deleted'}), 204

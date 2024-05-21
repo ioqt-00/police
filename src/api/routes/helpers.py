@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable
+from typing import Callable, Any
 
 from flask import jsonify, Response
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
@@ -8,8 +8,8 @@ from model import User
 
 
 # TODO ...
-def admin_required() -> Callable:
-    def admin_required(fn: Callable) -> Callable:
+def admin_required() -> Callable[[], Callable]:
+    def admin_required(fn: Callable[[Any], tuple[Response, int]]) -> Callable[[Any], tuple[Response, int]]:
         @wraps(fn)
         def decorator(*args, **kwargs) -> tuple[Response, int]:
             verify_jwt_in_request()

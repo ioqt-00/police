@@ -1,5 +1,4 @@
 import requests
-from datetime import datetime
 
 API_URL = "http://localhost:5001"
 
@@ -24,27 +23,27 @@ EVENT_TAGS = [
 EVENTS = [
     {
         "title": "event1",
-        "event_date": datetime.now(),
+        "event_date": "2024-05-20",
         "event_place": "Toulouse"
     },
     {
         "title": "event2",
-        "event_date": datetime.now(),
+        "event_date": "2024-05-20",
         "event_place": "Toulouse"
     },
     {
         "title": "event3",
-        "event_date": datetime.now(),
+        "event_date": "2024-05-20",
         "event_place": "Toulouse"
     },
     {
         "title": "event4",
-        "event_date": datetime.now(),
+        "event_date": "2024-05-20",
         "event_place": "Toulouse"
     },
     {
         "title": "event5",
-        "event_date": datetime.now(),
+        "event_date": "2024-05-20",
         "event_place": "Toulouse"
     }
 ]
@@ -53,13 +52,13 @@ RESOURCES = [
     {
         'title': "resource1",
         "resource_type": "image",
-        "uploaded_at": datetime.now(),
+        "uploaded_at": "2024-05-20",
         "user_name": "ioqt",
-        "source_date": datetime.now(),
+        "source_date": "2024-05-20",
         "source_place": "Toulouse",
         "source_place_type": "zone",
         "description": "description de resource 1",
-        "file_path": "README.md"
+        "file_path": "../README.md"
     }
 ]
 
@@ -78,12 +77,11 @@ USERS = [
 
 for user in USERS:
     res = requests.post(API_URL+"/users", json=user)
-    print(res.content)
     print(res.json()["message"])
     if res.status_code == 403:
         id = res.json()["id"]
         res = requests.request("PUT", API_URL+f"/users/{id}", json=user)
-        print(res.json()["message"])
+        print(res.json())
 
 credentials = {
     "username": "ioqt",
@@ -144,15 +142,15 @@ for tag in EVENT_TAGS:
 for event in EVENTS:
     res = requests.post(API_URL+"/resource_events", json=event)
     if res.status_code == 201:
-        print(res.json()["message"])
+        print(res.json())
     else:
         print(res.json())
 
 for resource in RESOURCES:
-    f = resource["file_path"].read()
-    res = requests.post(API_URL+"/resources", data=resource, files=f.write())
+    f = open(resource["file_path"])
+    res = requests.post(API_URL+"/resources", data=resource, files={"file": f.read()})
     if res.status_code == 201:
-        print(res.json()["message"])
-    else:
         print(res.json())
+    else:
+        print(res.content)
     f.close()

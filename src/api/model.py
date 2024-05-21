@@ -110,7 +110,6 @@ class ResourceEvent(db.Model):
         return {
             'id': self.id,
             'title': self.title,
-            'resource_id': self.resource_id,
             'event_date': self.event_date.isoformat(),
             'event_place': self.event_place,
             'tags': [tag.to_dict() for tag in self.tags],
