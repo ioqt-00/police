@@ -15,11 +15,7 @@ def get_users() -> Response:
     users = User.query.all()
     user_list = []
     for user in users:
-        user_list.append({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email
-        })
+        user_list.append(user.to_dict())
     return jsonify(user_list)
 
 
@@ -54,7 +50,7 @@ def create_user() -> tuple[Response, int]:
 def update_user(user_id: int) -> tuple[Response, int]:
     user = User.query.get_or_404(user_id)
     data = request.json
-    
+
     user.username = data.get('username', user.username)
     user.email = data.get('email', user.email)
     if 'password' in data:
@@ -65,11 +61,11 @@ def update_user(user_id: int) -> tuple[Response, int]:
 
 @user_bp.route('/', methods=['PUT'])
 @jwt_required()
-def update_user() -> tuple[Response, int]:
+def update_user_client() -> tuple[Response, int]:
     user_id = get_jwt_identity()
     user = User.query.get_or_404(user_id)
     data = request.json
-    
+
     user.username = data.get('username', user.username)
     user.email = data.get('email', user.email)
     if 'password' in data:

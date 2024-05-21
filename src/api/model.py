@@ -12,6 +12,11 @@ resource_tag_association = db.Table('resource_tag_association',
                                     db.Column('tag_id', db.Integer, db.ForeignKey('resource_tag.id'), primary_key=True)
                                     )
 
+resource_event_association = db.Table('resource_event_association',
+                                      db.Column('resource_id', db.Integer, db.ForeignKey('resource.id'), primary_key=True),
+                                      db.Column('event_id', db.Integer, db.ForeignKey('resource_event.id'), primary_key=True)
+                                      )
+
 event_tag_association = db.Table('event_tag_association',
                                  db.Column('event_id', db.Integer, db.ForeignKey('resource_event.id'), primary_key=True),
                                  db.Column('tag_id', db.Integer, db.ForeignKey('event_tag.id'), primary_key=True)
@@ -51,6 +56,7 @@ class User(db.Model):
 
 class Resource(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text, nullable=False)
     data = db.Column(db.LargeBinary, nullable=False)
     resource_type = db.Column(db.String(50), nullable=False)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -60,7 +66,7 @@ class Resource(db.Model):
     source_place = db.Column(db.String(200), nullable=True)
     source_place_type = db.Column(db.String(50), nullable=True)
     description = db.Column(db.Text, nullable=True)
-    resource_events = db.relationship('ResourceEvent', backref='resource', lazy=True)
+    resource_events = db.relationship('ResourceEvent', secondary=resource_event_association, backref=db.backref('resources', lazy='dynamic'))
     tags = db.relationship('ResourceTag', secondary=resource_tag_association, backref=db.backref('resources', lazy='dynamic'))
 
     def __repr__(self) -> str:
@@ -69,6 +75,7 @@ class Resource(db.Model):
     def to_dict(self) -> dict[str, Any]:
         return {
             'id': self.id,
+            'title': self.title,
             'resource_type': self.resource_type,
             'uploaded_at': self.uploaded_at.isoformat(),
             'user_id': self.user_id,
@@ -85,7 +92,7 @@ class Resource(db.Model):
 
 class ResourceEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    resource_id = db.Column(db.Integer, db.ForeignKey('resource.id'), nullable=False)
+    title = db.Column(db.Text, nullable=True)
     event_date = db.Column(db.Date, nullable=False)
     event_place = db.Column(db.String(200), nullable=False)
     tags = db.relationship('EventTag', secondary=event_tag_association, backref=db.backref('resources', lazy='dynamic'))
@@ -102,6 +109,7 @@ class ResourceEvent(db.Model):
     def to_dict(self) -> dict[str, Any]:
         return {
             'id': self.id,
+            'title': self.title,
             'resource_id': self.resource_id,
             'event_date': self.event_date.isoformat(),
             'event_place': self.event_place,

@@ -17,6 +17,15 @@ def create_resource_tag() -> tuple[Response, int]:
     return jsonify(new_tag.to_dict()), 201
 
 
+@resource_tag_bp.route('/', methods=['GET'])
+def get_resource_tags() -> tuple[Response, int]:
+    tags = ResourceTag.query.all()
+    tag_list = []
+    for tag in tags:
+        tag_list.append(tag.to_dict())
+    return jsonify(tag_list), 200
+
+
 @resource_tag_bp.route('/<int:id>', methods=['GET'])
 def get_resource_tag(id: int) -> tuple[Response, int]:
     tag = ResourceTag.query.get_or_404(id)

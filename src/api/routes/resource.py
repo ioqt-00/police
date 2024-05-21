@@ -1,5 +1,3 @@
-from typing import Any
-
 from flask import Blueprint, request, jsonify, Response
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
@@ -25,6 +23,7 @@ def create_resource() -> tuple[Response, int]:
 
     data = request.json
     new_resource = Resource(
+        title=data.get(['title'], '(notitle)'),
         resource_type=data['resource_type'],                # type: ignore[index]
         user_id=user_id,
         source_date=data.get('source_date'),                # type: ignore[union-attr]
@@ -50,6 +49,7 @@ def get_resource(id: int) -> tuple[Response, int]:
 def update_resource(id: int) -> tuple[Response, int]:
     data = request.json
     resource = Resource.query.get_or_404(id)
+    resource.title = data.get('title', resource.title)
     if 'resource_type' in data:
         resource.resource_type = data['resource_type']          # type: ignore[index]
     if 'source_date' in data:                                   # type: ignore[operator]

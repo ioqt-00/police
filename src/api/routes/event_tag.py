@@ -17,6 +17,15 @@ def create_event_tag() -> tuple[Response, int]:
     return jsonify(new_tag.to_dict()), 201
 
 
+@event_tag_bp.route('/', methods=['GET'])
+def get_event_tags() -> tuple[Response, int]:
+    tags = EventTag.query.all()
+    tag_list = []
+    for tag in tags:
+        tag_list.append(tag.to_dict())
+    return jsonify(tag_list), 200
+
+
 @event_tag_bp.route('/<int:id>', methods=['GET'])
 def get_event_tag(id: int) -> tuple[Response, int]:
     tag = EventTag.query.get_or_404(id)

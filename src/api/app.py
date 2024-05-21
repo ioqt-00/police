@@ -3,7 +3,7 @@ import os
 from flask import request, jsonify, Response
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 
-from model import User
+from model import *
 from config import db, app
 from routes.user import user_bp
 from routes.resource import resource_bp
